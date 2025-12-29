@@ -146,7 +146,79 @@
         </div>
     </div>
 
+    <canvas id="snowCanvas" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0"></canvas>
+
     <script>
+
+        /* -------------------------------
+        CALM SNOW EFFECT
+        -------------------------------- */
+
+        const canvas = document.getElementById("snowCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let width, height;
+        let snowflakes = [];
+
+        function resizeCanvas() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resizeCanvas);
+        resizeCanvas();
+
+        function createSnowflakes(count = 80) {
+        snowflakes = [];
+        for (let i = 0; i < count; i++) {
+            snowflakes.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            r: Math.random() * 2 + 1,
+            speedY: Math.random() * 0.6 + 0.2,
+            driftX: Math.random() * 0.2 - 0.1
+            });
+        }
+        }
+        createSnowflakes();
+
+        function drawSnow() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.beginPath();
+
+        snowflakes.forEach(flake => {
+            ctx.moveTo(flake.x, flake.y);
+            ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2);
+        });
+
+        ctx.fill();
+        moveSnow();
+        }
+
+        function moveSnow() {
+        snowflakes.forEach(flake => {
+            flake.y += flake.speedY;
+            flake.x += flake.driftX;
+
+            if (flake.y > height) {
+            flake.y = -5;
+            flake.x = Math.random() * width;
+            }
+
+            if (flake.x > width || flake.x < 0) {
+            flake.driftX *= -1;
+            }
+        });
+        }
+
+        function animateSnow() {
+        drawSnow();
+        requestAnimationFrame(animateSnow);
+        }
+        animateSnow();
+
+
+
         /* -------------------------------
         REGISTRY (Neutral Keys)
         -------------------------------- */

@@ -69,18 +69,18 @@
                 <div class="w-16 h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
             </div>
             <h1 class="font-cinzel text-4xl mb-2 gold-text tracking-widest">Secret Santa</h1>
-            <p class="text-xs text-gray-400 mb-10 tracking-[0.2em] uppercase">Private Identification Terminal</p>
+            <p class="text-xs text-gray-400 mb-10 tracking-[0.2em] uppercase">Enter your name to begin the hunt</p>
             
             <div class="space-y-8">
                 <div class="text-left relative">
-                    <label class="block text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3 ml-1 font-bold">Authorized Name</label>
+                    <label class="block text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3 ml-1 font-bold">Your First Name</label>
                     <input type="text" id="nameInput" 
                         class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-yellow-500/50 transition-all text-white font-light tracking-wide">
                 </div>
                 
                 <button onclick="handleLogin()" 
                     class="w-full christmas-accent hover:brightness-125 text-white font-bold py-4 rounded-xl transition-all duration-500 shadow-lg gold-glow uppercase tracking-widest text-sm">
-                    Access Portal
+                    Let the Hunt Begin!
                 </button>
             </div>
             
@@ -93,7 +93,7 @@
                 <span class="text-yellow-500 text-2xl">✦</span>
             </div>
             <h2 class="font-cinzel text-2xl gold-text mb-1"><span id="displayTitle"></span> <span id="displayName"></span></h2>
-            <p class="text-[10px] text-gray-500 mb-8 italic tracking-[0.15em] uppercase border-b border-white/5 pb-4">Personalized Decryption Task</p>
+            <p class="text-[10px] text-gray-500 mb-8 italic tracking-[0.15em] uppercase border-b border-white/5 pb-4">This might be your clue to unlock the secrets ahead</p>
             
             <div class="bg-black/30 rounded-2xl p-8 mb-8 border border-white/5 text-center relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-900/50 to-transparent"></div>
@@ -102,21 +102,21 @@
 
             <div class="space-y-8">
                 <div class="text-left">
-                    <label class="block text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3 ml-1 font-bold">Secret Password</label>
+                    <label class="block text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3 ml-1 font-bold">Crafted Answer</label>
                     <input type="password" id="passInput" 
                         class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-yellow-500/50 transition-all text-center tracking-[1em] text-white">
                 </div>
                 
                 <button onclick="handleUnlock()" 
                     class="w-full bg-white/10 hover:bg-white/20 text-yellow-500 font-bold py-4 rounded-xl border border-yellow-500/30 transition-all duration-500 uppercase tracking-widest text-sm">
-                    Verify Credentials
+                    Verify your Answer
                 </button>
                 
                 <p id="clueError" class="mt-6 text-red-500 text-[10px] uppercase tracking-widest hidden"></p>
             </div>
             
             <button onclick="logout()" class="mt-10 text-[9px] text-gray-500 hover:text-yellow-500 uppercase tracking-[0.4em] transition-colors border-b border-transparent hover:border-yellow-500/50 pb-1">
-                ← Reset Identity
+                Reset Identity
             </button>
         </div>
 
@@ -124,13 +124,13 @@
         <div id="view-success" class="glass rounded-3xl p-10 text-center hidden fade-in border-t-4 border-yellow-600">
             <div class="mb-8 relative flex justify-center">
                 <div class="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full"></div>
-                <span class="text-6xl relative animate-pulse">🎁</span>
+                <span class="text-6xl relative animate-pulse">🗝️</span>
             </div>
-            <h2 class="font-cinzel text-3xl gold-text mb-4">Identity Confirmed</h2>
+            <h2 class="font-cinzel text-3xl gold-text mb-4">You found it !</h2>
             <p id="successGreeting" class="text-gray-300 mb-10 leading-relaxed font-light"></p>
             
             <div class="bg-gradient-to-b from-yellow-900/20 to-black/40 border border-yellow-500/30 rounded-2xl p-8 mb-10 shadow-inner">
-                <h3 class="text-[10px] uppercase tracking-[0.4em] text-yellow-500/70 mb-4 font-bold">Encrypted Location</h3>
+                <h3 class="text-[10px] uppercase tracking-[0.4em] text-yellow-500/70 mb-4 font-bold">Secret Location</h3>
                 <p id="locationText" class="text-xl font-semibold text-white tracking-wide"></p>
             </div>
 
@@ -138,7 +138,7 @@
                 "Small things make big days. Merry Christmas!"
             </div>
 
-            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-600">— Your Secret Santa</p>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-600">- Your Secret Santa Or Someone hired me -</p>
             
             <button onclick="logout()" class="mt-10 text-[9px] text-gray-500 hover:text-yellow-500 uppercase tracking-[0.4em] transition-colors border-b border-transparent hover:border-yellow-500/50 pb-1">
                 Close Terminal
@@ -147,240 +147,251 @@
     </div>
 
     <script>
-        // Check for existing session on load
-        window.addEventListener('load', () => {
-            const savedName = localStorage.getItem('playerName');
-            if (savedName && players[savedName]) {
-                currentPlayerName = savedName;
-                const player = players[savedName];
-                document.getElementById('displayTitle').innerText = player.title;
-                document.getElementById('displayName').innerText = savedName;
-                document.getElementById('clueText').innerText = player.clue;
-                showView('view-clue');
-            }
-        });
+        /* -------------------------------
+        REGISTRY (Neutral Keys)
+        -------------------------------- */
+        document.addEventListener('contextmenu', e => e.preventDefault());
 
-        const players = {
-            "Menaka": {
-                title: "Madam",
-                clue: "When tradition wraps elegance in silence, count what remains unnamed.",
-                answer: "SIX",
-                location: "In the third sanctuary of the silent screen, where machines are but a memory and digital ghosts dwell.",
-                isCorrect: true
-            },
-            "Pasan": {
-                title: "Mr.",
-                clue: "The answer is beneath your fingers every working hour, yet never noticed.",
-                answer: "KEYBOARD",
-                location: "Under the third stone where the moss grows thickest.",
-                isCorrect: false
-            },
-            "Akila": {
-                title: "Mr.",
-                clue: "The password is decided by the day you wait for, not the day you live in.",
-                answer: "WEDNESDAY",
-                location: "Within the pages of a book that hasn't been opened since last winter.",
-                isCorrect: false
-            },
-            "Gihan": {
-                title: "Mr.",
-                clue: "Patience has a color, and that color never rushes.",
-                answer: "BLUE",
-                location: "Behind the shadow cast by the tallest plant at high noon.",
-                isCorrect: false
-            },
-            "Shashika": {
-                title: "Mrs.",
-                clue: "The answer hides between yesterday and tomorrow, but never stays.",
-                answer: "TODAY",
-                location: "Beneath the tile that rings hollow when the clock strikes twelve.",
-                isCorrect: false
-            },
-            "Sameera": {
-                title: "Mr.",
-                clue: "The strongest thing in a room is often the quietest.",
-                answer: "SILENCE",
-                location: "Inside the vessel that holds water but never drinks.",
-                isCorrect: false
-            },
-            "Dishan": {
-                title: "Mr.",
-                clue: "You unlock this every morning without a key.",
-                answer: "PHONE",
-                location: "Where the north wind meets the southern warmth in silence.",
-                isCorrect: false
-            },
-            "Shanaka": {
-                title: "Mr.",
-                clue: "The answer is measured, not counted.",
-                answer: "TIME",
-                location: "Tucked inside the lining of a coat that no longer fits.",
-                isCorrect: false
-            },
-            "Lankeshi": {
-                title: "Mrs.",
-                clue: "It follows you everywhere, yet disappears in darkness.",
-                answer: "SHADOW",
-                location: "At the base of the pillar that feels no weight.",
-                isCorrect: false
-            },
-            "Nishani": {
-                title: "Ms.",
-                clue: "The answer exists only when light agrees.",
-                answer: "REFLECTION",
-                location: "Behind the mirror that reflects only what you wish to see.",
-                isCorrect: false
-            },
-            "Madhuki": {
-                title: "Ms.",
-                clue: "This is heard before it is understood.",
-                answer: "ECHO",
-                location: "Where the sound of laughter is stored for rainy days.",
-                isCorrect: false
-            },
-            "Wajira": {
-                title: "Mr.",
-                clue: "The password is what remains after effort is gone.",
-                answer: "RESULT",
-                location: "Inside the drawer that opens only when you aren't looking.",
-                isCorrect: false
-            },
-            "Niruni": {
-                title: "Ms.",
-                clue: "The beginning hides the ending.",
-                answer: "CIRCLE",
-                location: "At the center of the path that leads back to itself.",
-                isCorrect: false
-            },
-            "Hiruvinda": {
-                title: "Mr.",
-                clue: "The thing you loves the most",
-                answer: "LIQOUR",
-                location: "Behind the glass that holds a spirit but has no soul.",
-                isCorrect: false
-            },
-            "Navodya": {
-                title: "Ms.",
-                clue: "You cannot hold it, but you can lose it.",
-                answer: "CHANCE",
-                location: "Under the seat that faces the setting sun every evening.",
-                isCorrect: false
-            },
-            "Tharushi": {
-                title: "Ms.",
-                clue: "The answer feels heavier when shared.",
-                answer: "TRUTH",
-                location: "Wrapped in the silence of the corner that everyone forgets.",
-                isCorrect: false
-            },
-            "Dilki": {
-                title: "Ms.",
-                clue: "The password is born from repetition.",
-                answer: "HABIT",
-                location: "Where the echo of the morning bell settles at night.",
-                isCorrect: false
-            },
-            "Nethma": {
-                title: "Ms.",
-                clue: "The answer grows when ignored.",
-                answer: "DOUBT",
-                location: "Inside the pocket of a dream you forgot you had.",
-                isCorrect: false
-            },
-            "Vinura": {
-                title: "Mr.",
-                clue: "The answer arrives only after a mistake.",
-                answer: "LEARNING",
-                location: "Behind the brick that bears a mark only you can recognize.",
-                isCorrect: false
-            },
-            "Vihangi": {
-                title: "Ms.",
-                clue: "The answer is visible, yet rarely seen.",
-                answer: "DETAIL",
-                location: "Beneath the leaf that stays green while others turn gold.",
-                isCorrect: false
-            },
-            "Chameen": {
-                title: "Mr.",
-                clue: "The answer is what remains when logic finishes and instinct begins.",
-                answer: "INTUITION",
-                location: "Where the first ray of moonlight touches the floor tonight.",
-                isCorrect: false
-            }
+        (function () {
+        let warned = false;
+
+        setInterval(() => {
+            
+            console.clear();
+            console.warn(
+                "%c⚠️ Curiosity Alert ⚠️\n\nThis game is meant to be solved, not inspected.\nTrust the clues. Enjoy the hunt.",
+                "color: gold; font-size: 14px; font-weight: bold;"
+            );
+            warned = true;
+            }, 1000);
+        })();
+
+        const registry = {
+        "Menaka": {
+            t: "Madam",
+            c: "True leadership carries tradition without display. Its completeness is defined by its form.",
+            k: "SIX",
+            l: "In the third sanctuary of the silent screen, where machines are but a memory and digital ghosts dwell."
+        },
+        "Pasan": {
+            t: "Mr.",
+            c: "The answer sits where decisions are made, yet it never decides anything itself.",
+            k: "DESK",
+            l: "Beneath the place where authority usually rests."
+        },
+        "Akila": {
+            t: "Mr.",
+            c: "From the highest place of thought, the answer is the day most often prepared for, not the one that arrives.",
+            k: "WEDNESDAY",
+            l: "On the upper floor, where silence is measured in pages rather than words."
+        },
+        "Gihan": {
+            t: "Mr.",
+            c: "Patience has a color, and that color never rushes.",
+            k: "BLUE",
+            l: "Behind the shadow cast by the tallest plant we ever know."
+        },
+        "Shashika": {
+            t: "Mrs.",
+            c: "The answer hides between yesterday and tomorrow, but never stays.",
+            k: "TODAY",
+            l: "Beneath the wall that rings hollow when struck."
+        },
+        "Sameera": {
+            t: "Mr.",
+            c: "The strongest thing in a room is often the quietest.",
+            k: "SILENCE",
+            l: "Inside the vessel that holds water but never drinks."
+        },
+        "Dishan": {
+            t: "Mr.",
+            c: "You unlock this every morning without a key.",
+            k: "PHONE",
+            l: "Near the place where cables converge and silent lights speak."
+        },
+        "Shanaka": {
+            t: "Mr.",
+            c: "The answer is measured, not counted.",
+            k: "TIME",
+            l: "Where many paths meet and signals decide their route."
+        },
+        "Lankeshi": {
+            t: "Mrs.",
+            c: "It follows you everywhere, yet disappears in darkness.",
+            k: "SHADOW",
+            l: "At the base of the pillar that feels no weight."
+        },
+        "Nishani": {
+            t: "Ms.",
+            c: "The truth appears only when both sides agree.",
+            k: "BALANCE",
+            l: "Where figures rest after being checked twice."
+        },
+        "Madhuki": {
+            t: "Ms.",
+            c: "This is heard before it is understood.",
+            k: "ECHO",
+            l: "Where the sound of laughter is stored for rainy days."
+        },
+        "Wajira": {
+            t: "Mr.",
+            c: "The password is what remains after effort is gone.",
+            k: "RESULT",
+            l: "Inside the drawer that opens only when you are not looking."
+        },
+        "Niruni": {
+            t: "Ms.",
+            c: "The beginning hides the ending.",
+            k: "CIRCLE",
+            l: "Where shared moments quietly return on themselves."
+        },
+        "Hiruvinda": {
+            t: "Mr.",
+            c: "It convinces before it satisfies.",
+            k: "OFFER",
+            l: "Where promises are poured generously and forgotten just as fast."
+        },
+        "Chameen": {
+            t: "Mr.",
+            c: "The answer is built by doing rather than deciding.",
+            k: "EXPERIENCE",
+            l: "Where the first ray of sunlight touches the floor in the morning."
+        },
+        "Navodya": {
+            t: "Ms.",
+            c: "You cannot hold it, but you can lose it.",
+            k: "CHANCE",
+            l: "Under a seat that faces the setting sun every evening."
+        },
+        "Tharushi": {
+            t: "Ms.",
+            c: "The answer feels heavier when shared.",
+            k: "TRUTH",
+            l: "Wrapped in the silence of the corner that everyone forgets."
+        },
+        "Dilki": {
+            t: "Ms.",
+            c: "The password is born from repetition.",
+            k: "HABIT",
+            l: "Follow the morning bell to their home."
+        },
+        "Nethma": {
+            t: "Ms.",
+            c: "The problem becomes clearer only after it is tested.",
+            k: "DEBUG",
+            l: "Where experiments quietly fail before they finally work."
+        },
+        "Vinura": {
+            t: "Mr.",
+            c: "It succeeds only when someone else agrees.",
+            k: "DEAL",
+            l: "Where conversations quietly turn into commitments."
+        },
+        "Vihangi": {
+            t: "Ms.",
+            c: "Meaning often hides between what is written and what is understood.",
+            k: "CONTEXT",
+            l: "Between the lines that most people read past."
+        }
         };
 
-        let currentPlayerName = "";
+        /* -------------------------------
+        RUNTIME SECRET (Not Stored)
+        -------------------------------- */
 
-        function showView(viewId) {
-            document.querySelectorAll('#app > div').forEach(div => div.classList.add('hidden'));
-            document.getElementById(viewId).classList.remove('hidden');
+        function resolveSecret(name) {
+        if (name === "Menaka") {
+            return {
+            key: String.fromCharCode(83, 73, 88),
+            loc: atob("SW4gdGhlIHRoaXJkIHNhbmN0dWFyeSBvZiB0aGUgc2lsZW50IHNjcmVlbiwgd2hlcmUgbWFjaGluZXMgYXJlIGJ1dCBhIG1lbW9yeSBhbmQgZGlnaXRhbCBnaG9zdHMgZHdlbGwu")
+            };
+        }
+        return {
+            key: registry[name].k,
+            loc: registry[name].l
+        };
+        }
+
+        /* -------------------------------
+        APP LOGIC
+        -------------------------------- */
+
+        let currentName = "";
+
+        window.addEventListener("load", () => {
+        const saved = localStorage.getItem("playerName");
+        if (saved && registry[saved]) {
+            enterClue(saved);
+        }
+        });
+
+        function showView(id) {
+        document.querySelectorAll("#app > div").forEach(d => d.classList.add("hidden"));
+        document.getElementById(id).classList.remove("hidden");
         }
 
         function handleLogin() {
-            const name = document.getElementById('nameInput').value.trim();
-            const errorEl = document.getElementById('loginError');
-            
-            const matchedName = Object.keys(players).find(k => k.toLowerCase() === name.toLowerCase());
+        const input = document.getElementById("nameInput").value.trim();
+        const name = Object.keys(registry).find(n => n.toLowerCase() === input.toLowerCase());
+        const error = document.getElementById("loginError");
 
-            if (matchedName) {
-                currentPlayerName = matchedName;
-                localStorage.setItem('playerName', matchedName);
-                errorEl.classList.add('hidden');
-                
-                const player = players[matchedName];
-                document.getElementById('displayTitle').innerText = player.title;
-                document.getElementById('displayName').innerText = matchedName;
-                document.getElementById('clueText').innerText = player.clue;
-                showView('view-clue');
-            } else {
-                errorEl.innerText = "Identification Failed. Unrecognized User.";
-                errorEl.classList.remove('hidden');
-            }
+        if (!name) {
+            error.innerText = "Identification Failed. Unrecognized User.";
+            error.classList.remove("hidden");
+            return;
         }
 
-        function logout() {
-            localStorage.removeItem('playerName');
-            currentPlayerName = "";
-            document.getElementById('nameInput').value = "";
-            document.getElementById('passInput').value = "";
-            showView('view-login');
+        localStorage.setItem("playerName", name);
+        enterClue(name);
+        }
+
+        function enterClue(name) {
+        currentName = name;
+        const p = registry[name];
+        document.getElementById("displayTitle").innerText = p.t;
+        document.getElementById("displayName").innerText = name;
+        document.getElementById("clueText").innerText = p.c;
+        showView("view-clue");
         }
 
         function handleUnlock() {
-            const pass = document.getElementById('passInput').value.trim().toUpperCase();
-            const errorEl = document.getElementById('clueError');
-            const player = players[currentPlayerName];
+        const input = document.getElementById("passInput").value.trim().toUpperCase();
+        const error = document.getElementById("clueError");
+        const secret = resolveSecret(currentName);
 
-            if (pass === player.answer) {
-                // Populate success info
-                document.getElementById('successGreeting').innerText = `Congratulations, ${player.title} ${currentPlayerName}. You have successfully decoded the path.`;
-                document.getElementById('locationText').innerText = player.location;
+        if (input === secret.key) {
+            document.getElementById("successGreeting").innerText =
+            `Congratulations, ${registry[currentName].t} ${currentName}. You have successfully decoded the path. Happy Hunting!`;
 
-                showView('view-success');
-                confetti({
-                    particleCount: 200,
-                    spread: 90,
-                    origin: { y: 0.6 },
-                    colors: ['#b91c1c', '#fde047', '#166534', '#ffffff']
-                });
-            } else {
-                errorEl.innerText = "You are close. Or maybe very far.";
-                errorEl.classList.remove('hidden');
-                
-                const view = document.getElementById('view-clue');
-                view.classList.add('animate-bounce');
-                setTimeout(() => view.classList.remove('animate-bounce'), 500);
-            }
+            document.getElementById("locationText").innerText = secret.loc;
+            showView("view-success");
+
+            confetti({
+            particleCount: 180,
+            spread: 90,
+            origin: { y: 0.6 }
+            });
+        } else {
+            error.innerText = "You are close. Or maybe very far.";
+            error.classList.remove("hidden");
+        }
         }
 
-        // Add keyboard support
-        document.getElementById('nameInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleLogin();
+        function logout() {
+        localStorage.removeItem("playerName");
+        currentName = "";
+        document.getElementById("nameInput").value = "";
+        document.getElementById("passInput").value = "";
+        showView("view-login");
+        }
+
+        document.getElementById("nameInput").addEventListener("keypress", e => {
+        if (e.key === "Enter") handleLogin();
         });
-        document.getElementById('passInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleUnlock();
+        document.getElementById("passInput").addEventListener("keypress", e => {
+        if (e.key === "Enter") handleUnlock();
         });
     </script>
+
 </body>
 </html>

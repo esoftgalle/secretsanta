@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Secret Santa Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+
+        body {
+            background: radial-gradient(circle at top right, #2d0a0a 0%, #0a1a0a 100%);
+            font-family: 'Inter', sans-serif;
+            color: #f3f4f6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .font-cinzel { font-family: 'Cinzel', serif; }
+
+        .glass {
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.6);
+        }
+
+        .christmas-accent {
+            background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+        }
+
+        .gold-glow {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
+        }
+
+        .gold-text {
+            background: linear-gradient(to right, #fde047, #ca8a04);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .portal-glow {
+            box-shadow: 0 0 20px rgba(187, 161, 79, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .portal-glow:focus {
+            box-shadow: 0 0 30px rgba(187, 161, 79, 0.4);
+            border-color: rgba(187, 161, 79, 0.5);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <div id="app" class="w-full max-w-md">
+        <!-- View 1: Name Entry -->
+        <div id="view-login" class="glass rounded-3xl p-10 text-center fade-in border-t-4 border-red-700">
+            <div class="mb-6 flex justify-center">
+                <div class="w-16 h-1 bg-gradient-to-r from-transparent via-yellow-500 to-transparent"></div>
+            </div>
+            <h1 class="font-cinzel text-4xl mb-2 gold-text tracking-widest">Secret Santa</h1>
+            <p class="text-xs text-gray-400 mb-10 tracking-[0.2em] uppercase">Private Identification Terminal</p>
+            
+            <div class="space-y-8">
+                <div class="text-left relative">
+                    <label class="block text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3 ml-1 font-bold">Authorized Name</label>
+                    <input type="text" id="nameInput" 
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-yellow-500/50 transition-all text-white font-light tracking-wide">
+                </div>
+                
+                <button onclick="handleLogin()" 
+                    class="w-full christmas-accent hover:brightness-125 text-white font-bold py-4 rounded-xl transition-all duration-500 shadow-lg gold-glow uppercase tracking-widest text-sm">
+                    Access Portal
+                </button>
+            </div>
+            
+            <p id="loginError" class="mt-6 text-red-500 text-[10px] uppercase tracking-widest hidden"></p>
+        </div>
+
+        <!-- View 2: Personalized Clue -->
+        <div id="view-clue" class="glass rounded-3xl p-10 text-center hidden fade-in border-t-4 border-green-800">
+            <div class="mb-4">
+                <span class="text-yellow-500 text-2xl">✦</span>
+            </div>
+            <h2 class="font-cinzel text-2xl gold-text mb-1"><span id="displayTitle"></span> <span id="displayName"></span></h2>
+            <p class="text-[10px] text-gray-500 mb-8 italic tracking-[0.15em] uppercase border-b border-white/5 pb-4">Personalized Decryption Task</p>
+            
+            <div class="bg-black/30 rounded-2xl p-8 mb-8 border border-white/5 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-900/50 to-transparent"></div>
+                <p id="clueText" class="text-gray-300 text-sm leading-relaxed font-light italic"></p>
+            </div>
+
+            <div class="space-y-8">
+                <div class="text-left">
+                    <label class="block text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3 ml-1 font-bold">Secret Password</label>
+                    <input type="password" id="passInput" 
+                        class="w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 outline-none focus:border-yellow-500/50 transition-all text-center tracking-[1em] text-white">
+                </div>
+                
+                <button onclick="handleUnlock()" 
+                    class="w-full bg-white/10 hover:bg-white/20 text-yellow-500 font-bold py-4 rounded-xl border border-yellow-500/30 transition-all duration-500 uppercase tracking-widest text-sm">
+                    Verify Credentials
+                </button>
+                
+                <p id="clueError" class="mt-6 text-red-500 text-[10px] uppercase tracking-widest hidden"></p>
+            </div>
+            
+            <button onclick="logout()" class="mt-10 text-[9px] text-gray-500 hover:text-yellow-500 uppercase tracking-[0.4em] transition-colors border-b border-transparent hover:border-yellow-500/50 pb-1">
+                ← Reset Identity
+            </button>
+        </div>
+
+        <!-- View 3: Success Reveal -->
+        <div id="view-success" class="glass rounded-3xl p-10 text-center hidden fade-in border-t-4 border-yellow-600">
+            <div class="mb-8 relative flex justify-center">
+                <div class="absolute inset-0 bg-yellow-500/20 blur-3xl rounded-full"></div>
+                <span class="text-6xl relative animate-pulse">🎁</span>
+            </div>
+            <h2 class="font-cinzel text-3xl gold-text mb-4">Identity Confirmed</h2>
+            <p id="successGreeting" class="text-gray-300 mb-10 leading-relaxed font-light"></p>
+            
+            <div class="bg-gradient-to-b from-yellow-900/20 to-black/40 border border-yellow-500/30 rounded-2xl p-8 mb-10 shadow-inner">
+                <h3 class="text-[10px] uppercase tracking-[0.4em] text-yellow-500/70 mb-4 font-bold">Encrypted Location</h3>
+                <p id="locationText" class="text-xl font-semibold text-white tracking-wide"></p>
+            </div>
+
+            <div class="italic text-gray-400 text-sm mb-8 border-t border-white/5 pt-8 font-serif">
+                "Small things make big days. Merry Christmas!"
+            </div>
+
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-600">— Your Secret Santa</p>
+            
+            <button onclick="logout()" class="mt-10 text-[9px] text-gray-500 hover:text-yellow-500 uppercase tracking-[0.4em] transition-colors border-b border-transparent hover:border-yellow-500/50 pb-1">
+                Close Terminal
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Check for existing session on load
+        window.addEventListener('load', () => {
+            const savedName = localStorage.getItem('playerName');
+            if (savedName && players[savedName]) {
+                currentPlayerName = savedName;
+                const player = players[savedName];
+                document.getElementById('displayTitle').innerText = player.title;
+                document.getElementById('displayName').innerText = savedName;
+                document.getElementById('clueText').innerText = player.clue;
+                showView('view-clue');
+            }
+        });
+
+        const players = {
+            "Menaka": {
+                title: "Madam",
+                clue: "When tradition wraps elegance in silence, count what remains unnamed.",
+                answer: "SIX",
+                location: "In the third sanctuary of the silent screen, where machines are but a memory and digital ghosts dwell.",
+                isCorrect: true
+            },
+            "Pasan": {
+                title: "Mr.",
+                clue: "The answer is beneath your fingers every working hour, yet never noticed.",
+                answer: "KEYBOARD",
+                location: "Under the third stone where the moss grows thickest.",
+                isCorrect: false
+            },
+            "Akila": {
+                title: "Mr.",
+                clue: "The password is decided by the day you wait for, not the day you live in.",
+                answer: "WEDNESDAY",
+                location: "Within the pages of a book that hasn't been opened since last winter.",
+                isCorrect: false
+            },
+            "Gihan": {
+                title: "Mr.",
+                clue: "Patience has a color, and that color never rushes.",
+                answer: "BLUE",
+                location: "Behind the shadow cast by the tallest plant at high noon.",
+                isCorrect: false
+            },
+            "Shashika": {
+                title: "Mr.",
+                clue: "The answer hides between yesterday and tomorrow, but never stays.",
+                answer: "TODAY",
+                location: "Beneath the tile that rings hollow when the clock strikes twelve.",
+                isCorrect: false
+            },
+            "Sameera": {
+                title: "Mr.",
+                clue: "The strongest thing in a room is often the quietest.",
+                answer: "SILENCE",
+                location: "Inside the vessel that holds water but never drinks.",
+                isCorrect: false
+            },
+            "Dishan": {
+                title: "Mr.",
+                clue: "You unlock this every morning without a key.",
+                answer: "PHONE",
+                location: "Where the north wind meets the southern warmth in silence.",
+                isCorrect: false
+            },
+            "Shanaka": {
+                title: "Mr.",
+                clue: "The answer is measured, not counted.",
+                answer: "TIME",
+                location: "Tucked inside the lining of a coat that no longer fits.",
+                isCorrect: false
+            },
+            "Lankeshi": {
+                title: "Ms.",
+                clue: "It follows you everywhere, yet disappears in darkness.",
+                answer: "SHADOW",
+                location: "At the base of the pillar that feels no weight.",
+                isCorrect: false
+            },
+            "Nishani": {
+                title: "Ms.",
+                clue: "The answer exists only when light agrees.",
+                answer: "REFLECTION",
+                location: "Behind the mirror that reflects only what you wish to see.",
+                isCorrect: false
+            },
+            "Madhuki": {
+                title: "Ms.",
+                clue: "This is heard before it is understood.",
+                answer: "ECHO",
+                location: "Where the sound of laughter is stored for rainy days.",
+                isCorrect: false
+            },
+            "Wajira": {
+                title: "Mr.",
+                clue: "The password is what remains after effort is gone.",
+                answer: "RESULT",
+                location: "Inside the drawer that opens only when you aren't looking.",
+                isCorrect: false
+            },
+            "Niruni": {
+                title: "Ms.",
+                clue: "The beginning hides the ending.",
+                answer: "CIRCLE",
+                location: "At the center of the path that leads back to itself.",
+                isCorrect: false
+            },
+            "Hiruvinda": {
+                title: "Mr.",
+                clue: "The thing you loves the most",
+                answer: "LIQOUR",
+                location: "Behind the glass that holds a spirit but has no soul.",
+                isCorrect: false
+            },
+            "Navodya": {
+                title: "Ms.",
+                clue: "You cannot hold it, but you can lose it.",
+                answer: "CHANCE",
+                location: "Under the seat that faces the setting sun every evening.",
+                isCorrect: false
+            },
+            "Tharushi": {
+                title: "Ms.",
+                clue: "The answer feels heavier when shared.",
+                answer: "TRUTH",
+                location: "Wrapped in the silence of the corner that everyone forgets.",
+                isCorrect: false
+            },
+            "Dilki": {
+                title: "Ms.",
+                clue: "The password is born from repetition.",
+                answer: "HABIT",
+                location: "Where the echo of the morning bell settles at night.",
+                isCorrect: false
+            },
+            "Nethma": {
+                title: "Ms.",
+                clue: "The answer grows when ignored.",
+                answer: "DOUBT",
+                location: "Inside the pocket of a dream you forgot you had.",
+                isCorrect: false
+            },
+            "Vinura": {
+                title: "Mr.",
+                clue: "The answer arrives only after a mistake.",
+                answer: "LEARNING",
+                location: "Behind the brick that bears a mark only you can recognize.",
+                isCorrect: false
+            },
+            "Vihangi": {
+                title: "Ms.",
+                clue: "The answer is visible, yet rarely seen.",
+                answer: "DETAIL",
+                location: "Beneath the leaf that stays green while others turn gold.",
+                isCorrect: false
+            },
+            "Chameen": {
+                title: "Mr.",
+                clue: "The answer is what remains when logic finishes and instinct begins.",
+                answer: "INTUITION",
+                location: "Where the first ray of moonlight touches the floor tonight.",
+                isCorrect: false
+            }
+        };
+
+        let currentPlayerName = "";
+
+        function showView(viewId) {
+            document.querySelectorAll('#app > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+        }
+
+        function handleLogin() {
+            const name = document.getElementById('nameInput').value.trim();
+            const errorEl = document.getElementById('loginError');
+            
+            const matchedName = Object.keys(players).find(k => k.toLowerCase() === name.toLowerCase());
+
+            if (matchedName) {
+                currentPlayerName = matchedName;
+                localStorage.setItem('playerName', matchedName);
+                errorEl.classList.add('hidden');
+                
+                const player = players[matchedName];
+                document.getElementById('displayTitle').innerText = player.title;
+                document.getElementById('displayName').innerText = matchedName;
+                document.getElementById('clueText').innerText = player.clue;
+                showView('view-clue');
+            } else {
+                errorEl.innerText = "Identification Failed. Unrecognized User.";
+                errorEl.classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('playerName');
+            currentPlayerName = "";
+            document.getElementById('nameInput').value = "";
+            document.getElementById('passInput').value = "";
+            showView('view-login');
+        }
+
+        function handleUnlock() {
+            const pass = document.getElementById('passInput').value.trim().toUpperCase();
+            const errorEl = document.getElementById('clueError');
+            const player = players[currentPlayerName];
+
+            if (pass === player.answer) {
+                // Populate success info
+                document.getElementById('successGreeting').innerText = `Congratulations, ${player.title} ${currentPlayerName}. You have successfully decoded the path.`;
+                document.getElementById('locationText').innerText = player.location;
+
+                showView('view-success');
+                confetti({
+                    particleCount: 200,
+                    spread: 90,
+                    origin: { y: 0.6 },
+                    colors: ['#b91c1c', '#fde047', '#166534', '#ffffff']
+                });
+            } else {
+                errorEl.innerText = "You are close. Or maybe very far.";
+                errorEl.classList.remove('hidden');
+                
+                const view = document.getElementById('view-clue');
+                view.classList.add('animate-bounce');
+                setTimeout(() => view.classList.remove('animate-bounce'), 500);
+            }
+        }
+
+        // Add keyboard support
+        document.getElementById('nameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        document.getElementById('passInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleUnlock();
+        });
+    </script>
+</body>
+</html>

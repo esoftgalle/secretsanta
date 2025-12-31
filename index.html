@@ -372,12 +372,7 @@
         -------------------------------- */
 
         function resolveSecret(name) {
-        if (name === "Menaka") {
-            return {
-            key: String.fromCharCode(83, 73, 88),
-            loc: atob("SW4gdGhlIHRoaXJkIHNhbmN0dWFyeSBvZiB0aGUgc2lsZW50IHNjcmVlbiwgd2hlcmUgbWFjaGluZXMgYXJlIGJ1dCBhIG1lbW9yeSBhbmQgZGlnaXRhbCBnaG9zdHMgZHdlbGwu")
-            };
-        }
+        
         return {
             key: registry[name].k,
             loc: registry[name].l
